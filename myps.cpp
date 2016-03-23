@@ -11,6 +11,9 @@ using std::getline;
 using std::ifstream;
 using std::vector;
 
+
+int const STAT_VALUES_COUNT = 15;
+
 struct Process {
     string pid, ppid, sid, uid, tty, proc_time, name;
 };
@@ -27,6 +30,34 @@ string get_status_path(string pid) {
     stat_path += pid;
     stat_path += "/status";
     return stat_path;
+}
+
+void insert_stat_values(string table[], string pid) {
+    string stat_path = get_stat_path(pid);
+    ifstream stat_file(stat_path);
+    for (int i = 0; i < STAT_VALUES_COUNT; i++)
+        getline(stat_file, table[i], ' ');
+    stat_file.close();
+}
+
+string get_status_uid_line(string pid) {
+    string status_path = get_status_path(pid);
+    ifstream status_file(status_path);
+    string uid_line;
+    // skip unneccessary lines
+    int const LINE_NUMBER = 8;
+    for (int i = 0; i < LINE_NUMBER; i++)
+        getline(status_file, uid_line);
+    status_file.close();
+    return uid_line;
+}
+    
+bool is_process_alive(string pid) {
+    string stat_path = get_stat_path(pid);
+    ifstream stat_file(stat_path);
+    bool process_exists = stat_file.good();
+    stat_file.close();
+    return process_exists;
 }
 
 Process get_filled_process_object(string stat_values[], string uid_line) {
@@ -81,39 +112,25 @@ int main(int argc, char *argv[])
     for (int i = 1; i < argc; i++) {
         // get argument
         string pid = argv[i];
-        cout << pid << endl;
 
-        // get stat file path
-        string stat_path = get_stat_path(pid);
-
-        // read stat file
-        ifstream stat_file(stat_path);
-        if (!stat_file.good()) {
-            // skip this pid if process not found
-            stat_file.close();
-            cout << "Process does not exist" << endl << endl;
+        // skip this pid if process not found
+        if (!is_process_alive(pid)) {
+            cout << "Process " << pid << " does not exist" << endl << endl;
             continue;
         }
-        int STAT_VALUES_COUNT = 15;
+
+        // read stat file (pid, ppid, sid, tty, utime, stime, name)
         string stat_values[STAT_VALUES_COUNT];
-        for (int i = 0; i < STAT_VALUES_COUNT; i++) {	
-            getline(stat_file, stat_values[i], ' ');
-        }
-        stat_file.close();
+        insert_stat_values(stat_values, pid);
 
-        // read status file
-        string status_path = get_status_path(pid);
-        ifstream status_file(status_path);
-        string uid_line;
-        // skip unneccessary lines
-        int const LINE_NUMBER = 8;
-        for (int i = 0; i < LINE_NUMBER; i++)
-            getline(status_file, uid_line);
-        status_file.close();
+        // read status file (uid)
+        string uid_line = get_status_uid_line(pid);
 
+        // create object with info
         Process process = get_filled_process_object(stat_values, uid_line);
-        print_process_info(process);
 
+        // print info
+        print_process_info(process);
         cout << endl;
     }
 
