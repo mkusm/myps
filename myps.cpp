@@ -61,6 +61,16 @@ Process get_filled_process_object(string stat_values[], string uid_line) {
     return process;
 }
 
+void print_process_info(Process &process) {
+        cout << setw(13) << "PID: " << process.pid << endl
+             << setw(13) << "PPID: " << process.ppid << endl
+             << setw(13) << "SID: " << process.sid << endl
+             << setw(13) << "UID: " << process.uid << endl
+             << setw(13) << "TTY: " << process.tty << endl
+             << setw(13) << "PROC_TIME: " << process.proc_time << endl
+             << setw(13) << "NAME: " << process.name << endl;
+}
+
 int main(int argc, char *argv[]) 
 {
     if (argc < 2) {
@@ -102,14 +112,7 @@ int main(int argc, char *argv[])
         status_file.close();
 
         Process process = get_filled_process_object(stat_values, uid_line);
-
-        cout << setw(13) << "PID: " << process.pid << endl
-             << setw(13) << "PPID: " << process.ppid << endl
-             << setw(13) << "SID: " << process.sid << endl
-             << setw(13) << "UID: " << process.uid << endl
-             << setw(13) << "TTY: " << process.tty << endl
-             << setw(13) << "PROC_TIME: " << process.proc_time << endl
-             << setw(13) << "NAME: " << process.name << endl;
+        print_process_info(process);
 
         cout << endl;
     }
