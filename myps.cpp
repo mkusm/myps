@@ -92,14 +92,18 @@ Process get_filled_process_object(string stat_values[], string uid_line) {
     return process;
 }
 
+void print_table_top() {
+    cout << setw(6) << "PID" << setw(6) << "PPID" 
+         << setw(6) << "SID" << setw(6) << "UID"
+         << setw(6) << "TTY" << setw(6) << "PTIME"
+         << ' ' << "NAME" << endl;
+}
+
 void print_process_info(Process &process) {
-        cout << setw(13) << "PID: " << process.pid << endl
-             << setw(13) << "PPID: " << process.ppid << endl
-             << setw(13) << "SID: " << process.sid << endl
-             << setw(13) << "UID: " << process.uid << endl
-             << setw(13) << "TTY: " << process.tty << endl
-             << setw(13) << "PROC_TIME: " << process.proc_time << endl
-             << setw(13) << "NAME: " << process.name << endl;
+    cout << setw(6) << process.pid << setw(6) << process.ppid
+         << setw(6) << process.sid << setw(6) << process.uid
+         << setw(6) << process.tty << setw(6) << process.proc_time
+         << ' ' << process.name << endl;
 }
 
 int main(int argc, char *argv[]) 
@@ -109,13 +113,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    print_table_top();
+
     for (int i = 1; i < argc; i++) {
         // get argument
         string pid = argv[i];
 
         // skip this pid if process not found
         if (!is_process_alive(pid)) {
-            cout << "Process " << pid << " does not exist" << endl << endl;
             continue;
         }
 
@@ -131,7 +136,6 @@ int main(int argc, char *argv[])
 
         // print info
         print_process_info(process);
-        cout << endl;
     }
 
     return 0;
