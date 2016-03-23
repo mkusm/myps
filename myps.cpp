@@ -3,13 +3,11 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include <vector>
 
 using std::cout; using std::endl; using std::setw;
 using std::string;
 using std::getline;
 using std::ifstream;
-using std::vector;
 
 
 int const STAT_VALUES_COUNT = 15;
