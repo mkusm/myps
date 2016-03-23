@@ -97,24 +97,42 @@ void print_table_top() {
          << ' ' << "NAME" << endl;
 }
 
-void print_process_info(Process &process) {
+void print_info_from_process_object(Process &process) {
     cout << setw(6) << process.pid << setw(6) << process.ppid
          << setw(6) << process.sid << setw(6) << process.uid
          << setw(6) << process.tty << setw(6) << process.proc_time
          << ' ' << process.name << endl;
 }
 
+void read_and_print_process_info(string pid) {
+    // read stat file (pid, ppid, sid, tty, utime, stime, name)
+    string stat_values[STAT_VALUES_COUNT];
+    insert_stat_values(stat_values, pid);
+
+    // read status file (uid)
+    string uid_line = get_status_uid_line(pid);
+
+    // create object with info
+    Process process = get_filled_process_object(stat_values, uid_line);
+
+    // print info
+    print_info_from_process_object(process);
+} 
+
 int main(int argc, char *argv[]) 
 {
-    if (argc < 2) {
-        cout << "Not enough arguments (should be at least 1)" << endl;
-        return 1;
-    }
-
     print_table_top();
 
+    if (argc == 1) {
+        // special /proc/ path to current process
+        string pid = "self";
+
+        read_and_print_process_info(pid);
+    }
+
+    // loop through all arguments
     for (int i = 1; i < argc; i++) {
-        // get argument
+        // get argument 
         string pid = argv[i];
 
         // skip this pid if process not found
@@ -122,18 +140,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // read stat file (pid, ppid, sid, tty, utime, stime, name)
-        string stat_values[STAT_VALUES_COUNT];
-        insert_stat_values(stat_values, pid);
-
-        // read status file (uid)
-        string uid_line = get_status_uid_line(pid);
-
-        // create object with info
-        Process process = get_filled_process_object(stat_values, uid_line);
-
-        // print info
-        print_process_info(process);
+        read_and_print_process_info(pid);
     }
 
     return 0;
